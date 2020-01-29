@@ -1,0 +1,109 @@
+<?php
+if (!isset($_SESSION['EMPRESA'])) {
+    header('Location:' . $sis->url_base() . '?erro=Selecione uma empresa.');
+}
+$id_empresa = (int) $_SESSION['EMPRESA'];
+$PRODUTO = $sis->url(2);
+$grupo_produto = $sis->select("select * from grupo_produto where EMPRESA='$id_empresa'");
+$getProduto = $sis->select("select * from produto where EMPRESA='$id_empresa' AND PRODUTO='$PRODUTO'");
+if(count($getProduto)>0){
+    $produto = $getProduto[0];
+}else{
+    header('Location:' . $sis->url_base('produtos').'?erro=Produto Não Encontrado.');
+}
+?>
+<?php include'inc/head.php'; ?>
+<div class="container">
+    <div class="row">
+        <div class="col-lg-12">
+
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="<?php echo $sis->url_base('') ?>">Home</a></li>
+                    <li class="breadcrumb-item"><a href="<?php echo $sis->url_base('empresa')?>"><?php echo $_SESSION['EMPRESA_NOME_FANTASIA']?></a></li>
+                    <li class="breadcrumb-item"><a href="<?php echo $sis->url_base('produtos')?>">Produtos</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Editar Produtos</li>
+                </ol>
+            </nav>
+
+            <h4>Editar Produto: <?php echo $produto->DESCRICAO_PRODUTO?></h4>
+            <hr>
+            <?php if(isset($erro) && !empty($erro)){?><p class="alert alert-danger"><?php echo $erro;?></p><?php }?>
+            <?php if(isset($sucesso) && !empty($sucesso)){?><p class="alert alert-success"><?php echo $sucesso;?></p><?php }?>
+            
+            <form action="" method="POST">
+                <input type="hidden" name="ACAO" value="editar">
+                <input type="hidden" name="EMPRESA" value="<?php echo $id_empresa?>">
+                <div class="form-row">
+                    <div class="form-group col-md-6">
+                        <label for="codigo">Código do Produto:</label>
+                        <input type="text" class="form-control" id="codigo" readonly="readonly" placeholder="Código do Produto" maxlength="15" name="PRODUTO" value="<?php if(isset($produto->PRODUTO)){echo $produto->PRODUTO;}?>">
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label for="apelido">Apelido do Produto:</label>
+                        <input type="text" class="form-control" id="apelido" placeholder="Apelido Produto" maxlength="100" name="APELIDO_PRODUTO" value="<?php if(isset($produto->APELIDO_PRODUTO)){echo $produto->APELIDO_PRODUTO;}?>">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="descricao">Descrição do Produto:</label>
+                    <textarea class="form-control" id="descricao" placeholder="Descreva seu produto" maxlength="250" name="DESCRICAO_PRODUTO"><?php if(isset($produto->DESCRICAO_PRODUTO)){echo $produto->DESCRICAO_PRODUTO;}?></textarea>
+                </div>
+                <div class="form-row">
+                    <div class="form-group col-md-4">
+                        <label for="grupo">Grupo:</label>
+                        <select id="grupo" class="form-control" name="GRUPO_PRODUTO">
+                            <option value="">--Selecione--</option>
+                            <?php if(count($grupo_produto)>0){
+                                foreach($grupo_produto as $grupo_p){?>
+                                    <option value="<?php echo $grupo_p->GRUPO_PRODUTO ?>" <?php if(isset($produto->GRUPO_PRODUTO) && $produto->GRUPO_PRODUTO==$grupo_p->GRUPO_PRODUTO){echo 'selected="selected"';}?>><?php echo $grupo_p->DESCRICAO_GRUPO_PRODUTO ?></option>
+                                <?php }?>
+                            <?php }?>
+                        </select>
+                    </div>
+                    <div class="form-group col-md-4">
+                        <label for="subgrupo">Subgrupo:</label>
+                        <select id="subgrupo" class="form-control" name="SUBGRUPO_PRODUTO">
+                            <option value="">--Selecione--</option>
+                            <?php if(count($grupo_produto)>0){
+                                foreach($grupo_produto as $subgrupo){?>
+                                    <option value="<?php echo $subgrupo->GRUPO_PRODUTO ?>" <?php if(isset($produto->SUBGRUPO_PRODUTO) && $produto->SUBGRUPO_PRODUTO==$subgrupo->GRUPO_PRODUTO){echo 'selected="selected"';}?>><?php echo $subgrupo->DESCRICAO_GRUPO_PRODUTO ?></option>
+                                <?php }?>
+                            <?php }?>
+                        </select>
+                    </div>
+                    <div class="form-group col-md-4">
+                        <label for="situacao">Situação:</label>
+                        <select id="situacao" class="form-control" name="SITUACAO">
+                            <option value="">--Selecione--</option>
+                            <option value="A" <?php if(isset($produto->SITUACAO) && $produto->SITUACAO=='A'){echo 'selected="selected"';}?>>Ativo</option>
+                            <option value="I" <?php if(isset($produto->SITUACAO) && $produto->SITUACAO=='I'){echo 'selected="selected"';}?>>Inativo</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group col-md-3">
+                        <label for="peso">Peso Líquido:</label>
+                        <input type="text" class="form-control" id="peso" maxlength="12" name="PESO_LIQUIDO" value="<?php if(isset($produto->PESO_LIQUIDO)){echo $produto->PESO_LIQUIDO;}?>">
+                    </div>
+                    <div class="form-group col-md-3">
+                        <label for="classificacao">Classificação Fiscal:</label>
+                        <input type="text" class="form-control" id="classificacao" maxlength="10" name="CLASSIFICACAO_FISCAL" value="<?php if(isset($produto->CLASSIFICACAO_FISCAL)){echo $produto->CLASSIFICACAO_FISCAL;}?>">
+                    </div>
+                    <div class="form-group col-md-3">
+                        <label for="codigobarras">Código Barras:</label>
+                        <input type="text" class="form-control" id="codigobarras" maxlength="50" name="CODIGO_BARRAS" value="<?php if(isset($produto->CODIGO_BARRAS)){echo $produto->CODIGO_BARRAS;}?>">
+                    </div>
+                    <div class="form-group col-md-3">
+                        <label for="colecao">Coleção:</label>
+                        <input type="text" class="form-control" id="colecao" maxlength="100" name="COLECAO" value="<?php if(isset($produto->COLECAO)){echo $produto->COLECAO;}?>">
+                    </div>
+                </div>
+                <p class="text-center">
+                    <button type="submit" class="btn btn-primary">Atualizar Produto</button>
+                </p>
+                
+            </form>
+        </div>
+    </div>
+</div>
+<?php include'inc/footer.php'; ?>
